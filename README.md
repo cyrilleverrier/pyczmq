@@ -32,14 +32,11 @@ This option would typically be used by users and contributing developers who wan
 
 On Ubuntu you need the following packages (Other OSes may use a different package name) which are typicall installed using 'sudo apt-get install _package_':
 
-    libffi-dev
-    python-dev
-    python-virtualenv
+    libffi-dev python-dev python-virtualenv
 
 The following Python packages are required which are typically installed using 'sudo pip install _package_':
 
-    cffi
-    nose
+    cffi nose
 
 Libsodium provides security for ZMQ:
 
