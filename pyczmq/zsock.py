@@ -61,7 +61,7 @@ def disconnect(sock, endpoint):
 @cdef('const char * zsock_type_str (zsock_t *self);')
 def type_str(sock):
     """Returns socket type as printable constant string"""
-    return C.zsock_type_str(sock)
+    return ffi.string(C.zsock_type_str(sock))
 
 
 @cdef('int zsock_send (zsock_t *self, zmsg_t **msg_p);')
