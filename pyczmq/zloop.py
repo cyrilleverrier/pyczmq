@@ -1,4 +1,5 @@
 from pyczmq._cffi import ffi, C, ptop, cdef
+from pyczmq import zsock
 
 __doc__ = """
 The zloop class provides an event-driven reactor pattern. The reactor
@@ -11,6 +12,7 @@ tickless timer to reduce CPU interrupts in inactive processes.
 cdef('typedef struct _zloop_t zloop_t;')
 cdef('typedef int (zloop_fn) (zloop_t *loop, zmq_pollitem_t *item, void *arg);')
 cdef('typedef int (zloop_timer_fn) (zloop_t *loop, int timer_id, void *arg);')
+cdef('typedef int (zloop_reader_fn) (zloop_t *loop, zsock_t *reader, void *arg);')
 
 
 def poll_callback(f):
@@ -27,11 +29,38 @@ def timer_callback(f):
     return handler
 
 
-def callback(f):
-    @ffi.callback('zloop_fn')
-    def handler(loop, item, arg):
-        return f(loop, item, ffi.from_handle(arg))
+def reader_callback(f):
+    @ffi.callback('zloop_reader_fn')
+    def handler(loop, reader, arg):
+        return f(loop, reader, ffi.from_handle(arg))
     return handler
+
+
+# old generic name before timers and readers
+callback = poll_callback
+
+
+@cdef('int zloop_reader (zloop_t *self, zsock_t *sock, zloop_reader_fn handler, void *arg);')
+def reader(loop, sock, handler, arg):
+    """Register socket reader with the reactor. When the reader has messages,
+    the reactor will call the handler, passing the arg. Returns 0 if OK, -1
+    if there was an error. If you register the same socket more than once,
+    each instance will invoke its corresponding handler."""
+    return C.zloop_reader(loop, sock, handler, ffi.new_handle(arg))
+
+
+@cdef('void zloop_reader_end (zloop_t *self, zsock_t *sock);')
+def reader_end(loop, sock):
+    """Cancel a socket reader from the reactor. If multiple readers exist for
+    same socket, cancels ALL of them."""
+    return C.zloop_reader_end(loop, sock)
+
+
+@cdef('void zloop_reader_set_tolerant (zloop_t *self, zsock_t *sock);')
+def reader_set_tolerant(loop, sock):
+    """Configure a registered reader to ignore errors. If you do not set this,
+    then readers that have errors are removed from the reactor silently."""
+    return C.zloop_reader_set_tolerant(loop, sock)
 
 
 @cdef('void zloop_destroy (zloop_t **self_p);')
@@ -40,15 +69,13 @@ def destroy(loop):
     Destroy a reactor, this is not necessary if you create it with
     new.
     """
-    if loop is not ffi.NULL:
-        C.zloop_destroy(ptop('zloop_t', loop))
-    return ffi.NULL
+    C.zloop_destroy(ptop('zloop_t', loop))
 
 
 @cdef(' zloop_t * zloop_new (void);')
 def new():
     """Create a new zloop reactor"""
-    return C.zloop_new()
+    return ffi.gc(C.zloop_new(), destroy)
 
 
 @cdef('int zloop_poller (zloop_t *self, zmq_pollitem_t *item,'

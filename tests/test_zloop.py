@@ -30,6 +30,11 @@ def test_zloop(verbose=False):
         assert (rc == 0)
         return 0
 
+    @zloop.reader_callback
+    def on_reader_event(loop, reader, arg):
+        assert arg is None
+        return -1
+
     l = zloop.new()
     zloop.set_verbose(l, verbose)
 
@@ -41,10 +46,8 @@ def test_zloop(verbose=False):
     zloop.timer(l, 20, 1, on_timer_event, output_s)
 
     # When we get the ping message, end the reactor
-    poll_input = zmq.pollitem(socket=input_s, events=zmq.POLLIN)
-    zloop.poller(l, poll_input, on_socket_event, 3)
-    zloop.poller_set_tolerant(l, poll_input)
-    zloop.start(l)
 
-    del l
-    del ctx
+    rc = zloop.reader(l, input_s, on_reader_event, None)
+    zloop.reader_set_tolerant (l, input_s);
+    zloop.start (l);
+
