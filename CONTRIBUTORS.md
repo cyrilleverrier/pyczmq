@@ -1,4 +1,4 @@
-pyczmq authors:
+pyczmq contributors:
 
   - Michel Pelletier (https://www.gittip.com/michelp/)
 
@@ -8,5 +8,4 @@ pyczmq authors:
 
   - Michael Haberler (https://github.com/mhaberler)
 
-
-
+  - https://github.com/bloff

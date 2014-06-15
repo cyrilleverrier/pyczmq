@@ -5,9 +5,22 @@ Pyczmq is a Python wrapper around the CZMQ zeromq bindings.
 
 ## Overview
 
-Pyczmq exposes CZMQ functions via the cffi library's ABI access mode.  No compiler is required to use it.  The czmq library is accessed with dlopen and a set of parsed function declarations.
+Pyczmq exposes CZMQ functions via the cffi library's ABI access mode.
+No compiler is required to use it.  The czmq library is accessed with
+dlopen and a set of parsed function declarations.
 
-This is still a work in progress, not all of the API is fully wrapped yet. Most of the core context, socket, socket option, polling, beacon, auth, and cert functions are provided. Some functions will probably not be wrapped, notably those that provide duplicate functionality to built-in python type or libraries like zlist, zhash, zsys, zclock, zdir, etc.
+This is still a work in progress, not all of the API is fully wrapped
+yet. Most of the core context, socket, socket option, polling, beacon,
+auth, and cert functions are provided. Some functions will probably
+not be wrapped, notably those that provide duplicate functionality to
+built-in python type or libraries like zlist, zhash, zsys, zclock,
+zdir, etc.
+
+## API Documentation
+
+The documentation for this binding can be found at readthedocs:
+
+    [http://pyczmq.readthedocs.org/](http://pyczmq.readthedocs.org/)
 
 
 ## Building and Installing
@@ -16,7 +29,8 @@ There are two methods for installing pyczmq.
 
 ### Option 1 - Use the Cheese Shop
 
-This is the easiest option for most users. If you have all the dependencies then it is as simple as:
+This is the easiest option for most users. If you have all the
+dependencies then it is as simple as:
 
     [sudo] pip install pyczmq
 
@@ -25,16 +39,20 @@ NOTE: This version may not be as up to date as the Github master.
 
 ### Option 2 - Use Github
 
-This option would typically be used by users and contributing developers who want access to the most up to date version.
+This option would typically be used by users and contributing
+developers who want access to the most up to date version.
 
 
 #### Dependencies
 
-On Ubuntu you need the following packages (Other OSes may use a different package name) which are typicall installed using 'sudo apt-get install _package_':
+On Ubuntu you need the following packages (Other OSes may use a
+different package name) which are typicall installed using 'sudo
+apt-get install _package_':
 
     libffi-dev python-dev python-virtualenv
 
-The following Python packages are required which are typically installed using 'sudo pip install _package_':
+The following Python packages are required which are typically
+installed using 'sudo pip install _package_':
 
     cffi nose
 
@@ -78,12 +96,13 @@ The high-level CZMQ library:
 
 #### Testing
 
-The pyczmq tests are run using the *nose* testing package. The tests are run from the top level pyczmq directory using:
+The pyczmq tests are run using the *nose* testing package. The tests
+are run from the top level pyczmq directory using:
 
     nosetests [-v]
 
-
-To report an issue, use the [Pyczmq issue tracker](https://github.com/zeromq/pyczmq/issues) at github.com.
+To report an issue, use the [Pyczmq issue
+tracker](https://github.com/zeromq/pyczmq/issues) at github.com.
 
 ## Details
 
@@ -121,15 +140,22 @@ For example a simple PUSH/PULL socket pipeline::
     zsocket.poll(pull, 1)
     assert zstr.recv_nowait(pull) == 'foo'
 
-Some of the 'new' functions in the module namespaces (like pyczmq.zctx.new) are wrappers that plug into Python's garbage collector, so you typically never need to explicitly destroy objects if you use the namespace interface.
+Some of the 'new' functions in the module namespaces (like
+pyczmq.zctx.new) are wrappers that plug into Python's garbage
+collector, so you typically never need to explicitly destroy objects
+if you use the namespace interface.
 
-Therefore, pyczmq.zctx.new isn't *really* pyczmq.C.zmq_new, but the effect is exactly the same.  If you use the "raw" C binding interface pyczmq.C.zctx_new, however, you must explicitly garbage collect your own resources by calling the coresponding destroy method (pyczmq.C.zctx_destroy, etc.).
+Therefore, pyczmq.zctx.new isn't *really* pyczmq.C.zmq_new, but the
+effect is exactly the same.  If you use the "raw" C binding interface
+pyczmq.C.zctx_new, however, you must explicitly garbage collect your
+own resources by calling the coresponding destroy method
+(pyczmq.C.zctx_destroy, etc.).
 
-Some 'new' functions do not do this wrapping behavior, because they are meant to be destroyed by czmq. zmsg objects for example are destroyed by zmsg_send, and zframe objects have their ownership taken over by various functions in zmsg and are destroyed when the msg is sent and destroyed.  If you create these objects and don't in turn call the functions that destroy them, you must explicitly destroy them yourself with zmsg.destroy or zframe.destroy.
+Some 'new' functions do not do this wrapping behavior, because they
+are meant to be destroyed by czmq. zmsg objects for example are
+destroyed by zmsg_send, and zframe objects have their ownership taken
+over by various functions in zmsg and are destroyed when the msg is
+sent and destroyed.  If you create these objects and don't in turn
+call the functions that destroy them, you must explicitly destroy them
+yourself with zmsg.destroy or zframe.destroy.
 
-
-## API Documentation
-
-The documentation for this binding can be found at readthedocs:
-
-    http://pyczmq.readthedocs.org/
