@@ -20,7 +20,7 @@ zdir, etc.
 
 The documentation for this binding can be found at readthedocs:
 
-    [http://pyczmq.readthedocs.org/](http://pyczmq.readthedocs.org/)
+[http://pyczmq.readthedocs.org/](http://pyczmq.readthedocs.org/)
 
 
 ## Building and Installing
