@@ -14,14 +14,14 @@ def destroy(sock):
     C.zsock_destroy(ptop('zsock_t', sock))
 
 
-@cdef('zsock_t * zsock_new_ (int type, const char *filename, size_t line_nbr);')
+@cdef('zsock_t * zsock_new (int type, const char *filename, size_t line_nbr);')
 def new(type, filename=None, line_nbr=None):
     if filename is None:
         frame = inspect.stack()[1][0]
         info = inspect.getframeinfo(frame)
         filename = info.filename
         line_nbr = info.lineno
-    return ffi.gc(C.zsock_new_(type, filename, line_nbr), destroy)
+    return ffi.gc(C.zsock_new(type, filename, line_nbr), destroy)
 
 
 @cdef('int zsock_bind (zsock_t *self, const char *format, ...);')
@@ -89,7 +89,7 @@ def signal(sock, status):
     not be sent."""
     return C.zsock_signal(sock, status)
 
-    
+
 @cdef('int zsock_wait (void *self);')
 def wait(sock):
     """Wait on a signal. Use this to coordinate between threads, over pipe
